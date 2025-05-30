@@ -12,24 +12,28 @@ with st.container():
 
 if st.button('🔍 Analisar Sentimento'):
     if user_input.strip():
-        translated_text = GoogleTranslator(source='auto', target='en').translate(user_input)
+        try:
+            translated_text = GoogleTranslator(source='auto', target='en').translate(user_input)
+            
+            blob = TextBlob(translated_text)
+            sentiment = blob.sentiment
 
-        blob = TextBlob(translated_text)
-        sentiment = blob.sentiment
+            st.markdown("### 📄 Texto traduzido:")
+            st.info(translated_text)
 
-        st.markdown("### 📄 Texto traduzido:")
-        st.info(translated_text)
+            st.markdown("### 📊 Resultados da Análise:")
+            col1, col2 = st.columns(2)
+            col1.metric("Polaridade", f"{sentiment.polarity:.2f}")
+            col2.metric("Subjetividade", f"{sentiment.subjectivity:.2f}")
 
-        st.markdown("### 📊 Resultados da Análise:")
-        col1, col2 = st.columns(2)
-        col1.metric("Polaridade", f"{sentiment.polarity:.2f}")
-        col2.metric("Subjetividade", f"{sentiment.subjectivity:.2f}")
+            if sentiment.polarity > 0:
+                st.success('Sentimento Positivo 😊')
+            elif sentiment.polarity < 0:
+                st.error('Sentimento Negativo 😞')
+            else:
+                st.info('Sentimento Neutro 😐')
 
-        if sentiment.polarity > 0:
-            st.success('Sentimento Positivo 😊')
-        elif sentiment.polarity < 0:
-            st.error('Sentimento Negativo 😞')
-        else:
-            st.info('Sentimento Neutro 😐')
+        except Exception as e:
+            st.error(f"❌ Ocorreu um erro durante a análise: {e}")
     else:
         st.warning('⚠️ Por favor, insira um texto para análise.')
